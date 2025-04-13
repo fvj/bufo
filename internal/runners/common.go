@@ -5,7 +5,10 @@ import (
 )
 
 type MetricsType interface {
-	Type() string
+	GetName() string
+	GetType() string
+	GetValue() string
+	GetTimestamp() uint64
 	_bufo_metric()
 }
 

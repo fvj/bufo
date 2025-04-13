@@ -27,11 +27,22 @@ type HTTPMetrics struct {
 	MetricId HTTPMetricsID `json:"metricId" yaml:"metricId"`
 	// The value of the metric
 	Value string `json:"value" yaml:"value"`
+	// The timestamp of the metric
+	Timestamp uint64 `json:"timestamp" yaml:"timestamp"`
 }
 
 func (m HTTPMetrics) _bufo_metric() {}
-func (m HTTPMetrics) Type() string {
+func (m HTTPMetrics) GetName() string {
+	return m.Name
+}
+func (m HTTPMetrics) GetType() string {
 	return string(m.MetricId)
+}
+func (m HTTPMetrics) GetValue() string {
+	return m.Value
+}
+func (m HTTPMetrics) GetTimestamp() uint64 {
+	return m.Timestamp
 }
 
 type HTTPMethod string
@@ -208,11 +219,11 @@ func (r *HTTPRunner) Run(metricsChannel chan MetricsType, errorChannel chan erro
 				for i, metric := range task.Metrics {
 					switch metric {
 					case StatusCode:
-						metricsChannel <- HTTPMetrics{Name: fmt.Sprintf("%s-%s-%d", r.Name, task.Name, i), MetricId: StatusCode, Value: strconv.Itoa(resp.StatusCode)}
+						metricsChannel <- HTTPMetrics{Name: fmt.Sprintf("%s-%s-%d", r.Name, task.Name, i), MetricId: StatusCode, Value: strconv.Itoa(resp.StatusCode), Timestamp: uint64(time.Now().Unix())}
 					case ResponseTime:
-						metricsChannel <- HTTPMetrics{Name: fmt.Sprintf("%s-%s-%d", r.Name, task.Name, i), MetricId: ResponseTime, Value: strconv.Itoa(int(time.Since(sendTimestamp).Milliseconds()))}
+						metricsChannel <- HTTPMetrics{Name: fmt.Sprintf("%s-%s-%d", r.Name, task.Name, i), MetricId: ResponseTime, Value: strconv.Itoa(int(time.Since(sendTimestamp).Milliseconds())), Timestamp: uint64(time.Now().Unix())}
 					case ResponseSize:
-						metricsChannel <- HTTPMetrics{Name: fmt.Sprintf("%s-%s-%d", r.Name, task.Name, i), MetricId: ResponseSize, Value: strconv.Itoa(int(resp.ContentLength))}
+						metricsChannel <- HTTPMetrics{Name: fmt.Sprintf("%s-%s-%d", r.Name, task.Name, i), MetricId: ResponseSize, Value: strconv.Itoa(int(resp.ContentLength)), Timestamp: uint64(time.Now().Unix())}
 					}
 				}
 			}

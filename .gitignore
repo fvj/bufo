@@ -8,6 +8,7 @@
 *.so
 *.dylib
 
+bufo.db
 bin/**
 
 # Test binary, built with `go test -c`
