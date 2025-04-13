@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/akamensky/argparse"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/fvj/bufo/internal/runners"
 	"os"
 )
@@ -41,8 +42,23 @@ func main() {
 		panic("unknown runner type")
 	}
 
+	metrics := make(chan runners.MetricsType)
+	errors := make(chan error)
+
+	go func() {
+		for metric := range metrics {
+			spew.Dump(metric)
+		}
+	}()
+
+	go func() {
+		for err := range errors {
+			spew.Dump(err)
+		}
+	}()
+
 	// run the specific runner
-	if err := specificRunner.Run(); err != nil {
+	if err := specificRunner.Run(metrics, errors); err != nil {
 		panic(err)
 	}
 }

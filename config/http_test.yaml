@@ -1,12 +1,49 @@
 name: bufo-test
 type: http
-parallel: 10
-rate: 5
+parallel: 5
+rate: 1
 duration: 10
-request:
-  url: "http://localhost:8000"
-  method: "GET"
-  headers:
-    User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-  body: ""
-  timeout: 5
+task_set:
+  name: "post-new-entry"
+  mode: sequential
+  max_runs: 1
+  tasks:
+    - name: "get-session-cookie"
+      type: request
+      assert:
+        status_code: 400
+      definition:
+        url: "https://httpbin.org/get"
+        method: GET
+        headers:
+          User-Agent: "bufo-test"
+          Accept: "application/json"
+        timeout: 30
+      collect:
+        - status_code
+        - response_time
+      capture:
+        - name: "session-cookie"
+          type: cookie
+          value: "session"
+          regex: "session=([^;]+)"
+          store: "session_cookie"
+
+    - name: "post-new-entry"
+      type: request
+      assert:
+        status_code: 200
+      metrics:
+        - status_code
+      definition:
+        url: "https://httpbin.org/post"
+        method: POST
+        headers:
+          User-Agent: "bufo-test"
+          Accept: "application/json"
+          Content-Type: "application/json"
+        timeout: 30
+        body: |
+          {
+            "entry": "bla"
+          }

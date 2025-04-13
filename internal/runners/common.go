@@ -1,11 +1,16 @@
 package runners
 
 import (
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
+type MetricsType interface {
+	Type() string
+	_bufo_metric()
+}
+
 type RunnerType interface {
-	Run() error
+	Run(chan MetricsType, chan error) error
 }
 
 type Runner struct {
@@ -23,10 +28,10 @@ type Runner struct {
 
 // NewRunner creates a new Runner with the given name and type
 func NewRunner(raw []byte) *Runner {
-	runner := &Runner{}
+	runner := Runner{}
 	if err := yaml.Unmarshal(raw, &runner); err != nil {
 		return nil
 	}
 
-	return runner
+	return &runner
 }
