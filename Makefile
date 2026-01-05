@@ -43,12 +43,19 @@ LDFLAGS ?= \
 	-Wl,-z,relro \
 	-Wl,-z,now
 
+DEPFLAGS = -MMD -MP
+
 .PHONY: bindir
 bindir:
 	@mkdir -p bin
 
-bin/%: src/%.c | bindir
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $<
+bin/%.o: src/%.c | bindir
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEPFLAGS) -c $< -o $@
+
+bin/%: bin/%.o | bindir
+	$(CC) $(LDFLAGS) -o $@ $<
 
 %: bin/%
 	@:
+
+-include bin/*.d
