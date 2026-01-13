@@ -1,0 +1,12 @@
+[adapters]
+enabled = ["icmp", "http"]
+
+[adapters.icmp]
+remote = "127.0.0.1"
+packets = 100
+
+[adapters.http]
+base_url = "http://google.com"
+force_tls = true
+timeout_tcp_in_ms = 5000
+timeout_http_in_ms = 10000
